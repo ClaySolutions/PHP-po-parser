@@ -139,27 +139,25 @@ class PoParser
                 case '#|':
                     $tmpParts = explode(' ', $data);
                     $tmpKey   = $tmpParts[0];
-                    if ($tmpKey != 'msgid' && $tmpKey != 'msgstr') {
-                        $tmpKey = $lastPreviousKey; // If there is a multiline previous string we must remember what key was first line.
-                        $str = $data;
+                    if (!in_array($tmpKey, array('msgid','msgid_plural','msgstr','msgctxt'))) {
+                    	$tmpKey = $lastPreviousKey; // If there is a multiline previous string we must remember what key was first line.
+                    	$str = $data;
                     } else {
-                        $str = implode(' ', array_slice($tmpParts, 1));
+                    	$str = implode(' ', array_slice($tmpParts, 1));
                     }
 
                     $entry['previous'] = isset($entry['previous'])? $entry['previous']:array('msgid'=>array(),'msgstr'=>array());
 
                     switch ($tmpKey) {
                         case 'msgid':
-                            $entry['previous']['msgid'][] = $str;
-                            $lastPreviousKey = $tmpKey;
-                            break;
-
+                        case 'msgid_plural':
                         case 'msgstr':
-                            $entry['previous']['msgstr'][] = $str;
+                            $entry['previous'][$tmpKey][] = $str;
                             $lastPreviousKey = $tmpKey;
                             break;
 
                         default:
+                        	$entry['previous'][$tmpKey] = $str;
                             break;
                     }
                     break;
@@ -264,12 +262,10 @@ class PoParser
             }
         }
         fclose($handle);
-
         // add final entry
         if ($state == 'msgstr') {
             $hash[] = $entry;
         }
-
 
         // - Cleanup header data
         $this->headers = array();
