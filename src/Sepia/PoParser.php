@@ -198,6 +198,15 @@ class PoParser
 
                     continue;
 
+
+
+
+                // Unknown meaning, reported by @Cellard
+                case '#~|':
+                	break;
+
+
+
                 // context
                 // Allows disambiguations of different messages that have same msgid.
                 // Example:
@@ -423,26 +432,17 @@ class PoParser
                 $isPlural = isset($entry['msgid_plural']);
 
                 if (isset($entry['previous'])) {
+                	foreach ($entry['previous'] AS $key=>$data) {
 
-                    $msgid = $entry['previous']['msgid'];
+                		if (is_string($data)) {
+	                		fwrite($handle, "#| " . $key . " " . $this->cleanExport($data) . "\n");
+                		} elseif (is_array($data) && count($data)>0) {
+                			foreach ($data AS $line) {
+                				fwrite($handle, "#| " . $key . " " . $this->cleanExport($line) . "\n");
+                			}
+                		}
 
-                    fwrite($handle, '#| msgid ');
-                    foreach ($msgid as $i => $id) {
-                        if ($i > 0 ) {
-                            fwrite($handle, '#| msgid ');
-                        }
-                        fwrite($handle, $this->cleanExport($id) . "\n");
-                    }
-
-                    $msgstr = $entry['previous']['msgstr'];
-
-                    fwrite($handle, '#| msgstr ');
-                    foreach ($msgstr as $i => $id) {
-                        if ($i > 0 ) {
-                            fwrite($handle, '#| msgstr ');
-                        }
-                        fwrite($handle, $this->cleanExport($id) . "\n");
-                    }
+                	}
                 }
 
                 if (isset($entry['tcomment'])) {
@@ -474,6 +474,7 @@ class PoParser
                 if (isset($entry['msgctxt'])) {
                     fwrite($handle, 'msgctxt ' . $this->cleanExport($entry['msgctxt'][0]) . "\n");
                 }
+
 
                 if ($isObsolete) {
                     fwrite($handle, "#~ ");
