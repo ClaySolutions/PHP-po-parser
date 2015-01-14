@@ -427,8 +427,14 @@ class PoParser
         return;
     }
 
+    function setReference($msgid, $reference)
+    {
+        if (!isset($this->entries[$msgid])) {
+            return;
+        }
 
-
+        $this->entries[$msgid]['reference'] = !is_array($reference) ? array($reference) : $reference;
+    }
 
     /**
     *   Gets entries
