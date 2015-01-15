@@ -505,6 +505,9 @@ class PoParser
 
 
         $entriesCount = count($this->entries);
+
+        ksort($this->entries, SORT_STRING | SORT_FLAG_CASE);
+
         $counter = 0;
         foreach ($this->entries as $entry) {
             $isObsolete = isset($entry['obsolete']) && $entry['obsolete'];
