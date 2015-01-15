@@ -427,13 +427,21 @@ class PoParser
         return;
     }
 
-    function setReference($msgid, $reference)
+    function setReference($msgid, $reference, $append = false)
     {
         if (!isset($this->entries[$msgid])) {
             return;
         }
 
-        $this->entries[$msgid]['reference'] = !is_array($reference) ? array($reference) : $reference;
+        if(
+            $append
+            && isset($this->entries[$msgid]['reference'])
+            && !in_array($reference, $this->entries[$msgid]['reference'])
+        ) {
+            $this->entries[$msgid]['reference'][] = $reference;
+        } else {
+            $this->entries[$msgid]['reference'] = !is_array($reference) ? array($reference) : $reference;
+        }
     }
 
     /**
